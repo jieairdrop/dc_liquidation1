@@ -1,0 +1,13 @@
+{
+  "name": "dc_liquidation",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "ws": "^8.13.0"
+  }
+}
