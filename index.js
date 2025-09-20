@@ -89,12 +89,12 @@ async function sendModernDiscordEmbed(order, notional) {
       },
       {
         name: "📈 Exchange",
-        value: "**Binance Futures**",
+        value: "**Futures**",
         inline: true
       }
     ],
     footer: {
-      text: "🔥 Crypto Liquidation Tracker • Powered by Binance",
+      text: "🔥 Crypto Liquidation Tracker 🔥",
       icon_url: "https://cryptologos.cc/logos/binance-coin-bnb-logo.png"
     },
     timestamp: new Date().toISOString(),
