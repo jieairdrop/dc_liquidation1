@@ -4,11 +4,26 @@ import fetch from "node-fetch";
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const BINANCE_WS = "wss://fstream.binance.com/ws/asterusdt@forceOrder";
 
-function sendDiscord(message) {
+async function sendDiscordEmbed(order, side, notional) {
+  const color = order.S === "BUY" ? 0x2ecc71 : 0xe74c3c; // green for long, red for short
+
+  const embed = {
+    title: `${side} 💥`,
+    color,
+    fields: [
+      { name: "Symbol", value: `\`${order.s}\``, inline: true },
+      { name: "Price", value: `\`${parseFloat(order.p).toLocaleString()}\``, inline: true },
+      { name: "Quantity", value: `\`${parseFloat(order.q).toLocaleString()}\``, inline: true },
+      { name: "Notional (USDT)", value: `\`${notional.toLocaleString()}\``, inline: true },
+      { name: "Time", value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }
+    ],
+    footer: { text: "Binance Futures Liquidation Bot" }
+  };
+
   return fetch(DISCORD_WEBHOOK_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content: message }),
+    body: JSON.stringify({ embeds: [embed] })
   });
 }
 
@@ -24,14 +39,14 @@ function connectBinance() {
     if (!msg.o) return;
 
     const order = msg.o;
-    const side = order.S === "BUY" ? "Long Liquidation" : "Short Liquidation";
-    const price = order.p;
-    const qty = order.q;
+    const side = order.S === "BUY" ? "🟢 Long Liquidation" : "🔴 Short Liquidation";
+    const price = parseFloat(order.p);
+    const qty = parseFloat(order.q);
+    const notional = price * qty; // USDT value
 
-    const discordMsg = `💥 ${side}\nSymbol: ${order.s}\nPrice: ${price}\nQuantity: ${qty}`;
-    console.log(discordMsg);
+    console.log(`[${side}] ${order.s} | Price: ${price} | Qty: ${qty} | Value: ${notional}`);
 
-    const resp = await sendDiscord(discordMsg);
+    const resp = await sendDiscordEmbed(order, side, notional);
     if (!resp.ok) {
       console.error("❌ Discord error:", await resp.text());
     }
